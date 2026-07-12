@@ -3230,5 +3230,16 @@
             exportContent.classList.add('scale-95');
         }
     </script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    
+    // Khi server báo có dữ liệu mới, web sẽ tự cập nhật
+    socket.on('dataChanged', (newData) => {
+        // Đây là chỗ "phép thuật": tự sửa số trên màn hình
+        document.getElementById('ks-1-weekly').innerText = newData.weekly;
+        alert("Có thông tin mới từ Quân Đoàn!");
+    });
+</script>
 </body>
 </html>
