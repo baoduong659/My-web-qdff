@@ -2574,7 +2574,11 @@
                         top3Count: top3, 
                         streak7Days: streak 
                     };
-                    showToast("Đã lưu thông tin chỉnh sửa!", "success");
+                    // ... đoạn code cũ của bạn
+showToast("Đã lưu thông tin chỉnh sửa!", "success");
+
+// THÊM DÒNG NÀY VÀO DƯỚI ĐÓ:
+socket.emit('updateScore', membersData);
                 }
             } else {
                 const newId = "ks-" + (Date.now());
@@ -2591,8 +2595,11 @@
                     streak7Days: streak, 
                     aiFrame: "" 
                 });
-                showToast("Thêm mới thành viên thành công!", "success");
-            }
+                // ... bên dưới đoạn thêm mới thành viên
+membersData.push({ ... });
+showToast("Thêm mới thành viên thành công!", "success");
+// BẠN CẦN THÊM DÒNG NÀY VÀO ĐÂY NỮA:
+socket.emit('updateScore', membersData);
 
             playSound('success');
             saveState();
@@ -3230,16 +3237,27 @@
             exportContent.classList.add('scale-95');
         }
     </script>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
     const socket = io();
-    
-    // Khi server báo có dữ liệu mới, web sẽ tự cập nhật
+
+    // 1. Lắng nghe dữ liệu mới từ Server
     socket.on('dataChanged', (newData) => {
-        // Đây là chỗ "phép thuật": tự sửa số trên màn hình
-        document.getElementById('ks-1-weekly').innerText = newData.weekly;
-        alert("Có thông tin mới từ Quân Đoàn!");
+        alert("Có thông tin mới từ Quân Đoàn! Web sẽ tự tải lại.");
+        location.reload(); // Tự tải lại trang để cập nhật mọi thay đổi
     });
-</script>
+
+// 2. Hàm gọi khi nhấn nút "Lưu" trên giao diện
+    function capNhatDuLieu() {
+        const code = prompt("Nhập mã Admin để cập nhật:");
+        if (code !== "123456") { 
+            alert("Mã sai rồi!");
+            return;
+        }
+
+        // Gửi toàn bộ danh sách membersData đã được cập nhật đi
+        socket.emit('updateScore', membersData); 
+        alert("Đã gửi dữ liệu cho toàn bộ thành viên!");
+    }
 </body>
 </html>
