@@ -5,7 +5,14 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+// Cấu hình CORS cho phép kết nối từ mọi nguồn
+const io = new Server(server, {
+    cors: {
+        origin: "*", 
+        methods: ["GET", "POST"]
+    }
+});
 
 // Cấu hình để server hiểu file HTML của bạn
 app.use(express.static(__dirname));
