@@ -1318,8 +1318,8 @@
             // Khởi chạy Socket.io Connection
             initSocketConnection();
 
-            // Onboarding Gate Control: Check version v8 update to trigger the entry screen once
-            const onboarded = localStorage.getItem('kingshadow_onboarded_v8');
+            // Onboarding Gate Control: Check version v9 update to trigger the entry screen once
+            const onboarded = localStorage.getItem('kingshadow_onboarded_v9');
             if (onboarded === 'true') {
                 document.getElementById('onboarding-screen').remove();
             }
@@ -1380,7 +1380,7 @@
 
         function enterSystem() {
             playSound('success');
-            localStorage.setItem('kingshadow_onboarded_v8', 'true');
+            localStorage.setItem('kingshadow_onboarded_v9', 'true');
             const gate = document.getElementById('onboarding-screen');
             gate.style.transition = 'opacity 0.5s ease';
             gate.style.opacity = 0;
@@ -1582,7 +1582,7 @@
 
         function loadLocalData() {
             try {
-                const storedMembers = localStorage.getItem('kingshadow_members_v8');
+                const storedMembers = localStorage.getItem('kingshadow_members_v9');
                 if (storedMembers) {
                     membersData = JSON.parse(storedMembers);
                     membersData.forEach(m => {
@@ -1593,7 +1593,7 @@
                     });
                 } else {
                     membersData = JSON.parse(JSON.stringify(defaultMembers));
-                    localStorage.setItem('kingshadow_members_v8', JSON.stringify(membersData));
+                    localStorage.setItem('kingshadow_members_v9', JSON.stringify(membersData));
                 }
             } catch (error) {
                 membersData = JSON.parse(JSON.stringify(defaultMembers));
@@ -1603,7 +1603,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem('kingshadow_members_v8', JSON.stringify(membersData));
+                localStorage.setItem('kingshadow_members_v9', JSON.stringify(membersData));
                 broadcastDataSync();
             } catch (err) {
                 console.error(err);
