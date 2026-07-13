@@ -120,14 +120,6 @@
 </head>
 <body class="text-gray-100 min-h-screen pb-12">
 
-    <!-- CONNECTION STATE TOAST/BANNER (Để theo dõi Socket.io) -->
-    <div id="socket-status-banner" class="fixed top-4 right-4 z-[9999] px-4 py-2 rounded-xl text-xs font-gaming font-bold bg-red-950/90 border border-red-500/30 text-red-400 flex items-center gap-2 shadow-2xl transition-all duration-300">
-        <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span id="socket-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-        </span>
-        <span id="socket-status-text">MẤT KẾT NỐI SERVER (OFFLINE PLAY)</span>
-    </div>
 
     <!-- MANDATORY ONBOARDING GATE (Users must finish generation before entering) -->
     <div id="onboarding-screen" class="fixed inset-0 bg-[#060913] z-[999] flex flex-col items-center justify-center p-4">
@@ -191,7 +183,16 @@
                         <h1 class="font-gaming text-lg font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-orange-50 to-orange-400">
                             KINGSHADOW <span class="text-orange-500 font-sans">࿐</span>
                         </h1>
-                        <p class="text-xs text-gray-400 font-subgaming tracking-widest uppercase">Cyber Command Center v8.0</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <p class="text-[10px] text-gray-400 font-subgaming tracking-widest uppercase">Cyber Command Center v8.0</p>
+                            <span id="socket-status-inline" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold font-gaming bg-red-950/60 border border-red-500/30 text-red-400 transition-all duration-300">
+                                <span class="relative flex h-1.5 w-1.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span id="socket-status-dot" class="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                                </span>
+                                <span id="socket-status-text">OFFLINE</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 
@@ -674,6 +675,10 @@
                         <option value="total-desc">Tổng đóng góp: Cao nhất</option>
                     </select>
 
+                    <button id="btn-new-week" onclick="triggerNewWeekWithAuth()" class="px-5 py-2.5 bg-gray-800 text-gray-500 rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed border border-gray-750" disabled>
+                        <i class="fas fa-calendar-plus"></i> GIAO TUẦN MỚI (QTV)
+                    </button>
+
                     <button id="btn-add-member" onclick="triggerAddMemberWithAuth()" class="px-5 py-2.5 bg-gray-800 text-gray-500 rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed border border-gray-750" disabled>
                         <i class="fas fa-user-plus"></i> THÊM MỚI (Yêu cầu QTV)
                     </button>
@@ -968,7 +973,7 @@
                         <i class="fas fa-medal"></i> CÁC DANH HIỆU ĐẠT ĐƯỢC
                     </h4>
                     
-                    <div class="space-y-2 text-xs" id="profile-badges-list">
+                    <div class="space-y-2 text-xs max-h-36 overflow-y-auto pr-1 scrollbar-thin" id="profile-badges-list">
                     </div>
                 </div>
 
@@ -1272,20 +1277,21 @@
 
         // Cập nhật banner trạng thái Socket phía trên góc phải
         function updateSocketBanner(isConnected, text) {
-            const banner = document.getElementById('socket-status-banner');
+            const inlineBadge = document.getElementById('socket-status-inline');
             const dot = document.getElementById('socket-status-dot');
             const statusText = document.getElementById('socket-status-text');
 
-            if (!banner) return;
+            if (!inlineBadge) return;
 
             if (isConnected) {
-                banner.className = "fixed top-4 right-4 z-[9999] px-4 py-2 rounded-xl text-xs font-gaming font-bold bg-green-950/90 border border-green-500/30 text-green-400 flex items-center gap-2 shadow-2xl transition-all duration-300";
-                dot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
+                inlineBadge.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold font-gaming bg-green-950/60 border border-green-500/30 text-green-400 transition-all duration-300";
+                dot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500";
+                statusText.innerText = "ONLINE";
             } else {
-                banner.className = "fixed top-4 right-4 z-[9999] px-4 py-2 rounded-xl text-xs font-gaming font-bold bg-red-950/90 border border-red-500/30 text-red-400 flex items-center gap-2 shadow-2xl transition-all duration-300";
-                dot.className = "relative inline-flex rounded-full h-2 w-2 bg-red-500";
+                inlineBadge.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold font-gaming bg-red-950/60 border border-red-500/30 text-red-400 transition-all duration-300";
+                dot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500";
+                statusText.innerText = "OFFLINE";
             }
-            statusText.innerText = text;
         }
 
         // Tín hiệu đồng bộ dữ liệu (Phát tán dữ liệu khi Admin cập nhật)
@@ -1754,6 +1760,54 @@
             }
         }
 
+        function triggerNewWeekWithAuth() {
+            if (!isAdminAuthenticated) {
+                triggerAdminAuthToggle();
+            } else {
+                showConfirm(
+                    "CHUYỂN GIAO TUẦN MỚI",
+                    "Hành động này sẽ:\n1. Tính toán cộng thêm +1 Huy Hiệu Top cho 3 người đứng đầu tuần cũ.\n2. Cộng dồn điểm tuần cũ vào Tổng cống hiến.\n3. Reset điểm danh dự tuần này về 0.\nBạn có muốn tiến hành?",
+                    function() {
+                        startNewWeekCycle();
+                    }
+                );
+            }
+        }
+
+        function startNewWeekCycle() {
+            playSound('success');
+            
+            // Tìm 3 người đứng đầu dựa trên điểm danh dự tuần hiện tại
+            const sorted = [...membersData].sort((a, b) => parseInt(b.weekly || 0) - parseInt(a.weekly || 0));
+            
+            if (sorted.length > 0) {
+                const top1 = sorted[0];
+                top1.top1Count = (top1.top1Count || 0) + 1;
+                showToast(`🏆 ${top1.name} nhận thêm 1 huy hiệu TOP 1!`, "success");
+            }
+            if (sorted.length > 1) {
+                const top2 = sorted[1];
+                top2.top2Count = (top2.top2Count || 0) + 1;
+                showToast(`🔥 ${top2.name} nhận thêm 1 huy hiệu TOP 2!`, "success");
+            }
+            if (sorted.length > 2) {
+                const top3 = sorted[2];
+                top3.top3Count = (top3.top3Count || 0) + 1;
+                showToast(`🔥 ${top3.name} nhận thêm 1 huy hiệu TOP 3!`, "success");
+            }
+
+            // Cộng dồn điểm tuần vào tổng và reset điểm tuần về 0
+            membersData.forEach(m => {
+                const weeklyPts = parseInt(m.weekly || 0);
+                m.total = (parseInt(m.total || 0)) + weeklyPts;
+                m.weekly = 0;
+            });
+
+            saveState();
+            refreshAllViews();
+            showToast("Đã thiết lập thành công chu kỳ dữ liệu Tuần Mới!", "success");
+        }
+
         function verifyAndExecute() {
             const inputVal = document.getElementById('admin-passcode-input').value;
             if (inputVal === atob("NjUyMDA5")) { // Decrypts "652009"
@@ -1782,6 +1836,7 @@
             const authBtn = document.getElementById('btn-admin-auth');
             const mobileInd = document.getElementById('admin-mobile-indicator');
             const addBtn = document.getElementById('btn-add-member');
+            const newWeekBtn = document.getElementById('btn-new-week');
 
             if (isAdminAuthenticated) {
                 if (authBtn) {
@@ -1797,6 +1852,10 @@
                     addBtn.className = "px-5 py-2.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-orange-500/10 flex items-center gap-2";
                     addBtn.innerHTML = `<i class="fas fa-user-plus"></i> THÊM MỚI`;
                 }
+                if (newWeekBtn) {
+                    newWeekBtn.disabled = false;
+                    newWeekBtn.className = "px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-blue-500/10 flex items-center gap-2";
+                }
             } else {
                 if (authBtn) {
                     authBtn.className = "px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-red-400 font-bold border border-red-900/40 transition duration-300 flex items-center gap-2";
@@ -1810,6 +1869,10 @@
                     addBtn.disabled = true;
                     addBtn.className = "px-5 py-2.5 bg-gray-800 text-gray-500 rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed border border-gray-750";
                     addBtn.innerHTML = `<i class="fas fa-user-plus"></i> THÊM MỚI (Yêu cầu QTV)`;
+                }
+                if (newWeekBtn) {
+                    newWeekBtn.disabled = true;
+                    newWeekBtn.className = "px-5 py-2.5 bg-gray-800 text-gray-500 rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed border border-gray-750";
                 }
             }
 
