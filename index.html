@@ -1627,13 +1627,7 @@
         }
 
         function saveState() {
-  function broadcastDataSync() {
-    // Kiểm tra nếu socket đã kết nối thì gửi dữ liệu đi
-    if (window.socket && window.socket.connected) {
-        window.socket.emit('update_data', membersData);
-        console.log("🚀 Đã gửi dữ liệu sang máy đồng đội!");
-    }
-}
+  
 
         function loadTournamentSquads() {
             try {
