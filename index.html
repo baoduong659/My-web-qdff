@@ -20,31 +20,6 @@
                     }
                 }
             }
-            <script>
-    // 1. Khởi tạo kết nối khi trang tải xong
-    window.onload = function() {
-        // Thay URL này bằng link Render của bạn (bắt buộc)
-        const socket = io("https://my-web-qdff.onrender.com", { 
-            transports: ['websocket'] 
-        });
-
-        // Lưu socket vào window để dùng được ở mọi hàm khác
-        window.socket = socket;
-
-        socket.on('connect', () => {
-            console.log("✅ Kết nối Server thành công!");
-        });
-
-        // 2. LẮNG NGHE: Máy của bạn sẽ tự nhận dữ liệu từ máy khác
-        socket.on('update_data', (newData) => {
-            console.log("🔄 Nhận dữ liệu đồng bộ từ đồng đội...");
-            // Lưu dữ liệu mới vào máy bạn
-            localStorage.setItem('kingshadow_members_v9', JSON.stringify(newData));
-            // Tự động tải lại trang để hiển thị cập nhật mới
-            location.reload(); 
-        });
-    </script>
-
         }
     </script>
     <!-- Font Awesome Icons -->
@@ -1627,7 +1602,13 @@
         }
 
         function saveState() {
-  
+            try {
+                localStorage.setItem('kingshadow_members_v9', JSON.stringify(membersData));
+                broadcastDataSync();
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
         function loadTournamentSquads() {
             try {
